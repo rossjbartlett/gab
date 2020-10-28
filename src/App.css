@@ -1,0 +1,80 @@
+:root {
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#app {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  /* -webkit-tap-highlight-color: transparent; */
+  /* user-select: none; */
+}
+
+#chat {
+  max-width: 960px;
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  box-shadow: 0 0 10px white;
+}
+
+#messagesContainer {
+  flex-grow: 1;
+  background: white;
+}
+
+#title {
+  background: dodgerblue;
+  width: 100%;
+  text-align: center;
+  color: white;
+  padding: 2vh;
+  font-weight: bold;
+  font-style: italic;
+}
+
+#messages {
+  list-style-type: none;
+}
+#messages li {
+  padding: 5px 10px;
+}
+#messages li:nth-child(odd) {
+  background: #eee;
+}
+
+form {
+  background: black;
+  padding: 3px;
+  width: 100%;
+  display: flex;
+}
+#input {
+  border: 0;
+  padding: 10px;
+  margin-right: 0.5%;
+  flex: 1;
+}
+form button {
+  width: 10%;
+  min-width: 50px;
+  background: dodgerblue;
+  border: none;
+  color: white;
+  font-weight: bold;
+  text-align: center;
+}

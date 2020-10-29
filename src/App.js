@@ -69,6 +69,8 @@ function App({ socket }) {
   useEffect(() => {
     socket.on('chat-message', function (msg) {
       setMessages(msgs => msgs.concat([msg]));
+      const elem = document.getElementById('messages');
+      elem.scrollTop = elem.scrollHeight;
     });
     socket.on('set-users', function (users) {
       setUsers(users);

@@ -4,23 +4,61 @@ const parser = require('socket.io-json-parser');
 const io = require('socket.io')(http, { parser });
 const rug = require('random-username-generator');
 
+const COLORS = [
+  'red',
+  'darkred',
+  'blue',
+  'darkblue',
+  'purple',
+  'magenta',
+  'green',
+  'darkgreen',
+  'blueviolet',
+  'chocolate',
+  'darkslategrey',
+  'goldenrod',
+];
+
+function randColor() {
+  return COLORS[Math.floor(Math.random() * COLORS.length)];
+}
+
 const users = {};
+const usernames = new Set();
 
 io.on('connection', socket => {
   console.log('a user connected');
-  const username = rug.generate();
-  users[socket.id] = username;
-  socket.emit('set-username', username); // tell client its name
+  const initialUsername = rug.generate();
+  users[socket.id] = { username: initialUsername, color: randColor() };
+  usernames.add(initialUsername);
+  socket.emit('set-username', initialUsername); // tell client its name
+
+  io.emit('set-users', users); // tell everyone the user list
 
   socket.on('disconnect', () => {
     console.log('user disconnected');
+    usernames.delete(users[socket.id].username);
     delete users[socket.id];
-    console.log('users', users);
+    io.emit('set-users', users); // tell everyone the user list
   });
 
   socket.on('chat-message', msg => {
     msg['ts'] = Date.now() / 1000; // utc seconds
     io.emit('chat-message', msg); // send the message to everyone
+  });
+
+  socket.on('set-color', color => {
+    color = color.trim();
+    if (color[0] !== '#') {
+      color = '#' + color;
+    }
+    if (/^#[0-9A-F]{6}$/i.test(color)) {
+      // is valid hex color
+      users[socket.id].color = color;
+      io.emit('set-users', users); //notify all
+    } else {
+      // TODO send back an error msg
+    }
   });
 
   socket.on('set-username', username => {
@@ -29,12 +67,14 @@ io.on('connection', socket => {
       // TODO send back an error msg
       return;
     }
-    if (Object.values(users).indexOf(username) > -1) {
+    if (usernames.has(username)) {
       // name taken
       // TODO send back an error msg
     } else {
-      users[socket.id] = username;
-      socket.emit('set-username', username); // tell client its name
+      users[socket.id].username = username;
+      usernames.delete(username);
+      usernames.add(username);
+      io.emit('set-users', users); //notify all
     }
   });
 });

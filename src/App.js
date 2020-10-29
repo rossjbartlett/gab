@@ -3,31 +3,12 @@ import './App.css';
 
 const TIMESTAMP_OPTIONS = { hour: '2-digit', minute: '2-digit', hour12: false };
 
-const COLORS = [
-  'red',
-  'darkred',
-  'blue',
-  'darkblue',
-  'purple',
-  'magenta',
-  'green',
-  'darkgreen',
-  'blueviolet',
-  'chocolate',
-  'darkslategrey',
-  'goldenrod',
-];
-
 const EMOJIS = [
   { emoji: '🙂', trigger: ':)' },
   { emoji: '😉', trigger: ';)' },
   { emoji: '🙁', trigger: ':(' },
   { emoji: '😲', trigger: ':o' },
 ];
-
-function randColor() {
-  return COLORS[Math.floor(Math.random() * COLORS.length)];
-}
 
 function emojify(text) {
   for (const e of EMOJIS) {
@@ -39,16 +20,13 @@ function emojify(text) {
 function App({ socket }) {
   const [text, setText] = useState('');
   const [messages, setMessages] = useState([]);
-  const [user, setUser] = useState('');
-  const [color, setColor] = useState(randColor());
-
-  // show username somewhere
+  const [users, setUsers] = useState([]);
+  const [self, setSelf] = useState({});
 
   function createMessage(msg) {
     return {
-      user,
+      userId: socket.id,
       msg,
-      c: color,
     };
   }
 
@@ -56,9 +34,11 @@ function App({ socket }) {
     socket.on('chat-message', function (msg) {
       setMessages(msgs => msgs.concat([msg]));
     });
-    socket.on('set-username', function (name) {
-      console.log('got name ', name);
-      setUser(name);
+    socket.on('set-users', function (users) {
+      setUsers(users);
+      console.log('self', users[socket.id]);
+      setSelf(users[socket.id]);
+      console.log('users', users);
     });
   }, [socket]);
 
@@ -67,6 +47,8 @@ function App({ socket }) {
     if (text.trim()) {
       if (text.startsWith('/name ')) {
         socket.emit('set-username', text.replace('/name ', ''));
+      } else if (text.startsWith('/color ')) {
+        socket.emit('set-color', text.replace('/color ', ''));
       } else {
         socket.emit('chat-message', createMessage(text));
       }
@@ -88,19 +70,24 @@ function App({ socket }) {
           <ul id='messages'>
             <li>
               You are{' '}
-              <span className='username' style={{ color }}>
-                <b>{user}</b>
+              <span className='username' style={{ color: self?.color }}>
+                <b>{self?.username}</b>
               </span>
               .
             </li>
             {messages.map(m => (
               <li
                 key={m.ts}
-                style={{ fontWeight: m.user === user ? 'bold' : '' }}
+                style={{
+                  fontWeight: m.userId === socket.id ? 'bold' : '',
+                }}
               >
                 <span className='timestamp'>{renderTime(m.ts)}</span>
-                <span className='username' style={{ color: m.c }}>
-                  {m.user}:
+                <span
+                  className='username'
+                  style={{ color: users[m.userId]?.color || 'black' }}
+                >
+                  {users[m.userId]?.username}:
                 </span>
                 <span className='msg'>{m.msg}</span>
               </li>

@@ -15,7 +15,6 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   /* -webkit-tap-highlight-color: transparent; */
   /* user-select: none; */
 }
@@ -26,8 +25,8 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  flex: 1;
   box-shadow: 0 0 10px white;
+  position: relative;
 }
 
 #title {
@@ -44,11 +43,30 @@
   position: absolute;
 }
 
-#messagesContainer {
+#body {
   width: 100%;
   position: absolute;
   top: 40px;
   bottom: 40px;
+  display: flex;
+}
+
+#userlist {
+  width: 20%;
+  word-break: break-all;
+  background: #eee;
+  font-size: small;
+  text-align: center;
+  padding: 7px;
+  overflow-y: scroll;
+}
+#userlist p {
+  margin: 7px 0;
+  text-align: end;
+}
+
+#messagesContainer {
+  width: 80%;
   background: white;
   display: flex;
   flex-direction: column;
@@ -64,7 +82,7 @@
   word-break: break-word;
 }
 #messages li:nth-child(odd) {
-  background: #eee;
+  background: whitesmoke;
 }
 #messages span + span {
   margin-left: 0.3em;

@@ -85,7 +85,7 @@ function App({ socket }) {
       elem.scrollTop = elem.scrollHeight;
     });
     socket.on('set-users', function (users) {
-      setUsers(users);
+      setUsers(Object.values(users));
       setSelf(users[socket.id]);
       setMessages(msgs => getUpdatedMessages(msgs, users));
     });
@@ -105,23 +105,42 @@ function App({ socket }) {
     setText('');
   }
 
+  const userList = users.filter(item => item !== self);
+  userList.unshift(self); // put self user at top
+
   return (
     <div id='app'>
       <div id='chat'>
         <div id='title'>gab.</div>
-        <div id='messagesContainer'>
-          <ul id='messages'>
-            <li>
-              You are{' '}
-              <span className='username' style={{ color: self?.color }}>
-                <b>{self?.username}</b>
-              </span>
-              .
-            </li>
-            {messages.map(m => (
-              <Message key={m.ts} m={m} socketId={socket.id} />
+        <div id='body'>
+          <div id='messagesContainer'>
+            <ul id='messages'>
+              <li>
+                You are{' '}
+                <span className='username' style={{ color: self?.color }}>
+                  <b>{self?.username}</b>
+                </span>
+                .
+              </li>
+              {messages.map(m => (
+                <Message key={m.ts} m={m} socketId={socket.id} />
+              ))}
+            </ul>
+          </div>
+          <div id='userlist'>
+            Online ({userList.length})
+            {userList.map((u, i) => (
+              <p
+                key={i}
+                style={{
+                  color: u.color,
+                  fontWeight: u.username === self.username ? 'bold' : '',
+                }}
+              >
+                {u.username}
+              </p>
             ))}
-          </ul>
+          </div>
         </div>
         <form onSubmit={handleSend}>
           <input

@@ -23,18 +23,11 @@
 #chat {
   max-width: 960px;
   width: 100vw;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
   flex: 1;
   box-shadow: 0 0 10px white;
-}
-
-#messagesContainer {
-  flex-grow: 1;
-  background: white;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
 }
 
 #title {
@@ -44,15 +37,26 @@
   color: white;
   font-weight: bold;
   font-style: italic;
-  height: 5vh;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
+  position: absolute;
+}
+
+#messagesContainer {
+  width: 100%;
+  position: absolute;
+  top: 40px;
+  bottom: 40px;
+  background: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
 }
 
 #messages {
   list-style-type: none;
-  max-height: 90vh;
   overflow-y: scroll;
 }
 #messages li {
@@ -75,13 +79,15 @@ form {
   padding: 3px;
   width: 100%;
   display: flex;
-  height: 5vh;
+  height: 40px;
+  position: absolute;
+  bottom: 0;
 }
 #input {
+  width: 90%;
   border: 0;
   padding: 10px;
   margin-right: 0.5%;
-  flex: 1;
 }
 form button {
   width: 10%;

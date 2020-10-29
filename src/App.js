@@ -97,8 +97,8 @@ function App({ socket }) {
   return (
     <div id='app'>
       <div id='chat'>
+        <div id='title'>gab.</div>
         <div id='messagesContainer'>
-          <div id='title'>gab.</div>
           <ul id='messages'>
             <li>
               You are{' '}

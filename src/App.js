@@ -25,7 +25,7 @@ function ErrorMessage({ m }) {
   );
 }
 
-function Message({ m, socketId, users }) {
+function Message({ m, socketId }) {
   function renderTime(ts) {
     const d = new Date(0);
     d.setUTCSeconds(ts);
@@ -36,17 +36,13 @@ function Message({ m, socketId, users }) {
     <ErrorMessage m={m} />
   ) : (
     <li
-      key={m.ts}
       style={{
         fontWeight: m.userId === socketId ? 'bold' : '',
       }}
     >
       <span className='timestamp'>{renderTime(m.ts)}</span>
-      <span
-        className='username'
-        style={{ color: users[m.userId]?.color || 'black' }}
-      >
-        {users[m.userId]?.username}:
+      <span className='username' style={{ color: m.color }}>
+        {m.username}
       </span>
       <span className='msg'>{m.msg}</span>
     </li>
@@ -62,8 +58,24 @@ function App({ socket }) {
   function createMessage(msg) {
     return {
       userId: socket.id,
+      username: self.username,
+      color: self.color,
       msg,
     };
+  }
+
+  function getUpdatedMessages(messages, users) {
+    // make copy of messages with updated colors, usernames
+    const msgs = messages.map(m => {
+      if (m.userId in users) {
+        // if user is still active, get their latest name/color
+        m.username = users[m.userId].username;
+        m.color = users[m.userId].color;
+      }
+      //if user is not active, maintain the last name/color set on the msg
+      return m;
+    });
+    return msgs;
   }
 
   useEffect(() => {
@@ -74,9 +86,8 @@ function App({ socket }) {
     });
     socket.on('set-users', function (users) {
       setUsers(users);
-      console.log('self', users[socket.id]);
       setSelf(users[socket.id]);
-      console.log('users', users);
+      setMessages(msgs => getUpdatedMessages(msgs, users));
     });
   }, [socket]);
 
@@ -108,7 +119,7 @@ function App({ socket }) {
               .
             </li>
             {messages.map(m => (
-              <Message m={m} socketId={socket.id} users={users} />
+              <Message key={m.ts} m={m} socketId={socket.id} />
             ))}
           </ul>
         </div>

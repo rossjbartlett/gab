@@ -27,17 +27,17 @@ const users = {};
 const usernames = new Set();
 
 io.on('connection', socket => {
-  console.log('a user connected');
   const initialUsername = rug.generate();
+  console.log(initialUsername, 'connected');
   users[socket.id] = { username: initialUsername, color: randColor() };
   usernames.add(initialUsername);
   socket.emit('set-username', initialUsername); // tell client its name
-
   io.emit('set-users', users); // tell everyone the user list
 
   socket.on('disconnect', () => {
-    console.log('user disconnected');
-    usernames.delete(users[socket.id].username);
+    const username = users[socket.id].username;
+    console.log(username, 'disconnected');
+    usernames.delete(username);
     delete users[socket.id];
     io.emit('set-users', users); // tell everyone the user list
   });
@@ -56,9 +56,9 @@ io.on('connection', socket => {
     if (usernames.has(username)) {
       socket.emit('chat-message', 'Error: username is taken');
     } else {
-      users[socket.id].username = username;
-      usernames.delete(username);
+      usernames.delete(users[socket.id].username);
       usernames.add(username);
+      users[socket.id].username = username;
       io.emit('set-users', users); //notify all
     }
   });

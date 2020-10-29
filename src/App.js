@@ -20,8 +20,22 @@ const COLORS = [
   'goldenrod',
 ];
 
+const EMOJIS = [
+  { emoji: '🙂', trigger: ':)' },
+  { emoji: '😉', trigger: ';)' },
+  { emoji: '🙁', trigger: ':(' },
+  { emoji: '😲', trigger: ':o' },
+];
+
 function randColor() {
   return COLORS[Math.floor(Math.random() * COLORS.length)];
+}
+
+function emojify(text) {
+  for (const e of EMOJIS) {
+    text = text.replace(e.trigger, e.emoji);
+  }
+  return text;
 }
 
 function App({ socket }) {
@@ -36,7 +50,6 @@ function App({ socket }) {
     return {
       user,
       msg,
-      ts: Date.now() / 1000, // utc seconds
       c: color,
     };
   }
@@ -92,7 +105,7 @@ function App({ socket }) {
           <input
             id='input'
             value={text}
-            onChange={e => setText(e.target.value)}
+            onChange={e => setText(emojify(e.target.value))}
             autoComplete='off'
           />
           <button>Send</button>

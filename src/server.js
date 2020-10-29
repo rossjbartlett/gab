@@ -1,6 +1,7 @@
 const app = require('express')();
 const http = require('http').createServer(app);
-const io = require('socket.io')(http);
+const parser = require('socket.io-json-parser');
+const io = require('socket.io')(http, { parser });
 
 io.on('connection', socket => {
   console.log('a user connected');
@@ -8,7 +9,7 @@ io.on('connection', socket => {
     console.log('user disconnected');
   });
   socket.on('chat-message', msg => {
-    console.log('got message: ' + msg);
+    console.log('got message: ', msg); // TODO rm
     io.emit('chat-message', msg); // send the message to everyone
   });
 });

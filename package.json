@@ -9,11 +9,13 @@
     "@testing-library/user-event": "^7.1.2",
     "express": "^4.17.1",
     "prettier": "^2.1.2",
+    "random-username-generator": "^1.0.4",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-scripts": "3.4.3",
     "socket.io": "^2.3.0",
-    "socket.io-client": "^2.3.1"
+    "socket.io-client": "^2.3.1",
+    "socket.io-json-parser": "^2.1.1"
   },
   "scripts": {
     "start": "react-scripts start --no-cache",

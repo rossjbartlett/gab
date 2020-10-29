@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import './App.css';
 
-const rug = require('random-username-generator');
-
 const TIMESTAMP_OPTIONS = { hour: '2-digit', minute: '2-digit', hour12: false };
 
 const COLORS = [
@@ -41,7 +39,7 @@ function emojify(text) {
 function App({ socket }) {
   const [text, setText] = useState('');
   const [messages, setMessages] = useState([]);
-  const [user, setUser] = useState(rug.generate());
+  const [user, setUser] = useState('');
   const [color, setColor] = useState(randColor());
 
   // show username somewhere
@@ -58,14 +56,22 @@ function App({ socket }) {
     socket.on('chat-message', function (msg) {
       setMessages(msgs => msgs.concat([msg]));
     });
+    socket.on('set-username', function (name) {
+      console.log('got name ', name);
+      setUser(name);
+    });
   }, [socket]);
 
   function handleSend(e) {
     e.preventDefault(); // prevent refresh
     if (text.trim()) {
-      socket.emit('chat-message', createMessage(text));
-      setText('');
+      if (text.startsWith('/name ')) {
+        socket.emit('set-username', text.replace('/name ', ''));
+      } else {
+        socket.emit('chat-message', createMessage(text));
+      }
     }
+    setText('');
   }
 
   function renderTime(ts) {

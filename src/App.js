@@ -49,6 +49,25 @@ function Message({ m, socketId }) {
   );
 }
 
+function Userlist({ userList, self }) {
+  return (
+    <div id='userlist'>
+      <div>Online ({userList.length})</div>
+      {userList.map((u, i) => (
+        <p
+          key={i}
+          style={{
+            color: u.color,
+            fontWeight: u.username === self.username ? 'bold' : '',
+          }}
+        >
+          {u.username}
+        </p>
+      ))}
+    </div>
+  );
+}
+
 function App({ socket }) {
   const [text, setText] = useState('');
   const [messages, setMessages] = useState([]);
@@ -116,31 +135,20 @@ function App({ socket }) {
           <div id='messagesContainer'>
             <ul id='messages'>
               <li>
-                You are{' '}
-                <span className='username' style={{ color: self?.color }}>
-                  <b>{self?.username}</b>
+                <span>
+                  You are{' '}
+                  <span className='username' style={{ color: self?.color }}>
+                    <b>{self?.username}</b>
+                  </span>
+                  .
                 </span>
-                .
               </li>
-              {messages.map(m => (
-                <Message key={m.ts} m={m} socketId={socket.id} />
+              {messages.map((m, i) => (
+                <Message key={i} m={m} socketId={socket.id} />
               ))}
             </ul>
           </div>
-          <div id='userlist'>
-            Online ({userList.length})
-            {userList.map((u, i) => (
-              <p
-                key={i}
-                style={{
-                  color: u.color,
-                  fontWeight: u.username === self.username ? 'bold' : '',
-                }}
-              >
-                {u.username}
-              </p>
-            ))}
-          </div>
+          <Userlist userList={userList} self={self} />
         </div>
         <form onSubmit={handleSend}>
           <input

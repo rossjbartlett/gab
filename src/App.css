@@ -83,3 +83,8 @@ form button {
   font-weight: bold;
   text-align: center;
 }
+
+.err {
+  color: red;
+  font-size: 'x-small';
+}

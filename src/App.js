@@ -17,6 +17,42 @@ function emojify(text) {
   return text;
 }
 
+function ErrorMessage({ m }) {
+  return (
+    <li>
+      <span className='err'>{m}</span>
+    </li>
+  );
+}
+
+function Message({ m, socketId, users }) {
+  function renderTime(ts) {
+    const d = new Date(0);
+    d.setUTCSeconds(ts);
+    return d.toLocaleTimeString('en-US', TIMESTAMP_OPTIONS);
+  }
+
+  return typeof m === 'string' ? (
+    <ErrorMessage m={m} />
+  ) : (
+    <li
+      key={m.ts}
+      style={{
+        fontWeight: m.userId === socketId ? 'bold' : '',
+      }}
+    >
+      <span className='timestamp'>{renderTime(m.ts)}</span>
+      <span
+        className='username'
+        style={{ color: users[m.userId]?.color || 'black' }}
+      >
+        {users[m.userId]?.username}:
+      </span>
+      <span className='msg'>{m.msg}</span>
+    </li>
+  );
+}
+
 function App({ socket }) {
   const [text, setText] = useState('');
   const [messages, setMessages] = useState([]);
@@ -56,12 +92,6 @@ function App({ socket }) {
     setText('');
   }
 
-  function renderTime(ts) {
-    const d = new Date(0);
-    d.setUTCSeconds(ts);
-    return d.toLocaleTimeString('en-US', TIMESTAMP_OPTIONS);
-  }
-
   return (
     <div id='app'>
       <div id='chat'>
@@ -76,21 +106,7 @@ function App({ socket }) {
               .
             </li>
             {messages.map(m => (
-              <li
-                key={m.ts}
-                style={{
-                  fontWeight: m.userId === socket.id ? 'bold' : '',
-                }}
-              >
-                <span className='timestamp'>{renderTime(m.ts)}</span>
-                <span
-                  className='username'
-                  style={{ color: users[m.userId]?.color || 'black' }}
-                >
-                  {users[m.userId]?.username}:
-                </span>
-                <span className='msg'>{m.msg}</span>
-              </li>
+              <Message m={m} socketId={socket.id} users={users} />
             ))}
           </ul>
         </div>

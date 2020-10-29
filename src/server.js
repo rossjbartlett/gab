@@ -47,6 +47,22 @@ io.on('connection', socket => {
     io.emit('chat-message', msg); // send the message to everyone
   });
 
+  socket.on('set-username', username => {
+    username = username.trim();
+    if (username.length < 1) {
+      socket.emit('chat-message', 'Error: invalid username');
+      return;
+    }
+    if (usernames.has(username)) {
+      socket.emit('chat-message', 'Error: username is taken');
+    } else {
+      users[socket.id].username = username;
+      usernames.delete(username);
+      usernames.add(username);
+      io.emit('set-users', users); //notify all
+    }
+  });
+
   socket.on('set-color', color => {
     color = color.trim();
     if (color[0] !== '#') {
@@ -57,24 +73,7 @@ io.on('connection', socket => {
       users[socket.id].color = color;
       io.emit('set-users', users); //notify all
     } else {
-      // TODO send back an error msg
-    }
-  });
-
-  socket.on('set-username', username => {
-    username = username.trim();
-    if (username.length < 1) {
-      // TODO send back an error msg
-      return;
-    }
-    if (usernames.has(username)) {
-      // name taken
-      // TODO send back an error msg
-    } else {
-      users[socket.id].username = username;
-      usernames.delete(username);
-      usernames.add(username);
-      io.emit('set-users', users); //notify all
+      socket.emit('chat-message', 'Error: invalid color');
     }
   });
 });

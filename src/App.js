@@ -49,7 +49,7 @@ function Message({ m, socketId }) {
   const isSelf = m.userId === socketId;
   const fontWeight = isSelf ? 'bold' : '500';
   const msgStyle = {
-    background: isSelf ? 'dodgerblue' : 'lightgrey',
+    background: isSelf ? 'dodgerblue' : '#eee',
     color: isSelf ? 'white' : 'black',
   };
 

@@ -77,7 +77,9 @@
 }
 #userlist p {
   margin: 7px 0;
-  text-align: end;
+  background: ghostwhite;
+  border-radius: 25px;
+  padding: 5px 10px;
 }
 
 #messagesContainer {
@@ -111,7 +113,6 @@
 }
 
 .msg {
-  background: lightgrey;
   padding: 5px 9px;
   border-radius: 12px;
   width: fit-content;

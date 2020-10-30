@@ -3,16 +3,16 @@ import './App.css';
 
 const TIMESTAMP_OPTIONS = { hour: '2-digit', minute: '2-digit', hour12: false };
 
-const EMOJIS = [
-  { emoji: '🙂', trigger: ':)' },
-  { emoji: '😉', trigger: ';)' },
-  { emoji: '🙁', trigger: ':(' },
-  { emoji: '😲', trigger: ':o' },
-];
+const EMOJIS = {
+  ':)': '🙂 ',
+  ';)': '😉 ',
+  ':(': '🙁 ',
+  ':o': '😲 ',
+};
 
 function emojify(text) {
-  for (const e of EMOJIS) {
-    text = text.replace(e.trigger, e.emoji);
+  for (const [trigger, emoji] of Object.entries(EMOJIS)) {
+    text = text.replace(trigger, emoji);
   }
   return text;
 }

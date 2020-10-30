@@ -25,22 +25,16 @@ function randColor() {
 }
 
 const users = {};
-const usernames = new Set(); // TODO change
+const usernames = () => Object.values(users).map(u => u.username);
 const messages = [];
 
 io.on('connection', socket => {
   const initialUsername = rug.generate();
-  console.log(initialUsername, 'connected');
   users[socket.id] = { username: initialUsername, color: randColor() };
-  usernames.add(initialUsername);
-  socket.emit('set-username', initialUsername); // tell client its name
-  socket.emit('messages', messages); // give client the message history
   io.emit('set-users', users); // tell everyone the user list
+  socket.emit('messages', messages); // give client the message history
 
   socket.on('disconnect', () => {
-    const username = users[socket.id].username;
-    console.log(username, 'disconnected');
-    usernames.delete(username);
     delete users[socket.id];
     io.emit('set-users', users); // tell everyone the user list
   });
@@ -60,11 +54,9 @@ io.on('connection', socket => {
       socket.emit('error-msg', 'Error: invalid username');
       return;
     }
-    if (usernames.has(username)) {
+    if (usernames().indexOf(username) >= 0) {
       socket.emit('error-msg', 'Error: username is taken');
     } else {
-      usernames.delete(users[socket.id].username);
-      usernames.add(username);
       users[socket.id].username = username;
       const usersMsgs = messages.filter(m => m.userId === socket.id);
       usersMsgs.forEach(m => (m.username = username));

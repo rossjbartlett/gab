@@ -17,14 +17,6 @@ function emojify(text) {
   return text;
 }
 
-function ErrorMessage({ m }) {
-  return (
-    <li>
-      <span className='err'>{m}</span>
-    </li>
-  );
-}
-
 function Message({ m, socketId }) {
   function renderTime(ts) {
     const d = new Date(0);
@@ -32,9 +24,7 @@ function Message({ m, socketId }) {
     return d.toLocaleTimeString('en-US', TIMESTAMP_OPTIONS);
   }
 
-  return typeof m === 'string' ? (
-    <ErrorMessage m={m} />
-  ) : (
+  return (
     <li
       style={{
         fontWeight: m.userId === socketId ? 'bold' : '',
@@ -76,6 +66,7 @@ function App({ socket }) {
   const [messages, setMessages] = useState([]);
   const [users, setUsers] = useState([]);
   const [self, setSelf] = useState({});
+  const [err, setErr] = useState();
 
   function createMessage(msg) {
     return {
@@ -90,8 +81,9 @@ function App({ socket }) {
     socket.on('messages', function (msgs) {
       setMessages(msgs);
     });
-    socket.on('error-msg', function (errMsg) {
-      setMessages(msgs => msgs.concat[errMsg]); // TODO popup instead
+    socket.on('error-msg', function (err) {
+      setErr(err);
+      setTimeout(() => setErr(null), 3000);
     });
     socket.on('set-users', function (users) {
       setUsers(Object.values(users));
@@ -135,6 +127,7 @@ function App({ socket }) {
             </ul>
           </div>
           <Userlist userList={userList} self={self} />
+          <div className={`err ${err ? 'show' : ''}`}>{err}</div>
         </div>
         <form onSubmit={handleSend}>
           <input

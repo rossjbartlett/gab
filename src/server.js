@@ -29,14 +29,27 @@ const usernames = () => Object.values(users).map(u => u.username);
 const messages = [];
 
 io.on('connection', socket => {
-  const initialUsername = rug.generate();
-  users[socket.id] = { username: initialUsername, color: randColor() };
-  io.emit('set-users', users); // tell everyone the user list
-  socket.emit('messages', messages); // give client the message history
+  let lastColor;
+
+  socket.on('init-client', username => {
+    if (usernames().indexOf(username) >= 0) {
+      // username taken
+      username = rug.generate();
+    } else {
+      // preserve color if user in chat history
+      const m = messages.find(m => m.username === username);
+      if (m) {
+        lastColor = m.color;
+      }
+    }
+    users[socket.id] = { username, color: lastColor || randColor() };
+    io.emit('set-users', users); // tell everyone the user list, also gives current client its name
+    socket.emit('messages', messages); // give client the message history
+  });
 
   socket.on('disconnect', () => {
     delete users[socket.id];
-    io.emit('set-users', users); // tell everyone the user list
+    io.emit('set-users', users);
   });
 
   socket.on('chat-message', msg => {

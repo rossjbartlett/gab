@@ -39,14 +39,14 @@ function Userlist({ userList, self }) {
   );
 }
 
-function Message({ m, socketId }) {
+function Message({ m, username }) {
   function renderTime(ts) {
     const d = new Date(0);
     d.setUTCSeconds(ts);
     return d.toLocaleTimeString('en-US', TIMESTAMP_OPTIONS);
   }
 
-  const isSelf = m.userId === socketId;
+  const isSelf = m.username === username;
   const fontWeight = isSelf ? 'bold' : '500';
   const msgStyle = {
     background: isSelf ? 'dodgerblue' : '#eee',
@@ -110,6 +110,14 @@ function App({ socket }) {
   }, [socket]);
 
   useEffect(() => {
+    if (self.username) {
+      document.cookie = `username=${self.username};max-age=${
+        60 * 60 * 24 * 100
+      }`;
+    }
+  }, [self]);
+
+  useEffect(() => {
     // when msgs change, scroll to bottom
     const elem = document.getElementById('messages');
     elem.scrollTop = elem.scrollHeight;
@@ -140,7 +148,7 @@ function App({ socket }) {
           <div id='messagesContainer'>
             <ul id='messages'>
               {messages.map((m, i) => (
-                <Message key={i} m={m} socketId={socket.id} />
+                <Message key={i} m={m} username={self.username} />
               ))}
             </ul>
           </div>

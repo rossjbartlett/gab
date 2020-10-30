@@ -24,7 +24,8 @@ function randColor() {
 }
 
 const users = {};
-const usernames = new Set();
+const usernames = new Set(); // TODO change
+const messages = [];
 
 io.on('connection', socket => {
   const initialUsername = rug.generate();
@@ -32,6 +33,7 @@ io.on('connection', socket => {
   users[socket.id] = { username: initialUsername, color: randColor() };
   usernames.add(initialUsername);
   socket.emit('set-username', initialUsername); // tell client its name
+  socket.emit('messages', messages); // give client the message history
   io.emit('set-users', users); // tell everyone the user list
 
   socket.on('disconnect', () => {
@@ -44,22 +46,29 @@ io.on('connection', socket => {
 
   socket.on('chat-message', msg => {
     msg['ts'] = Date.now() / 1000; // utc seconds
-    io.emit('chat-message', msg); // send the message to everyone
+    messages.push(msg);
+    if (messages.length > 200) {
+      messages.shift(); // pop oldest msg
+    }
+    io.emit('messages', messages);
   });
 
   socket.on('set-username', username => {
     username = username.trim();
     if (username.length < 1) {
-      socket.emit('chat-message', 'Error: invalid username');
+      socket.emit('error-msg', 'Error: invalid username');
       return;
     }
     if (usernames.has(username)) {
-      socket.emit('chat-message', 'Error: username is taken');
+      socket.emit('error-msg', 'Error: username is taken');
     } else {
       usernames.delete(users[socket.id].username);
       usernames.add(username);
       users[socket.id].username = username;
+      const usersMsgs = messages.filter(m => m.userId === socket.id);
+      usersMsgs.forEach(m => (m.username = username));
       io.emit('set-users', users); //notify all
+      io.emit('messages', messages);
     }
   });
 
@@ -71,9 +80,12 @@ io.on('connection', socket => {
     if (/^#[0-9A-F]{6}$/i.test(color)) {
       // is valid hex color
       users[socket.id].color = color;
+      const usersMsgs = messages.filter(m => m.userId === socket.id);
+      usersMsgs.forEach(m => (m.color = color));
       io.emit('set-users', users); //notify all
+      io.emit('messages', messages);
     } else {
-      socket.emit('chat-message', 'Error: invalid color');
+      socket.emit('error-msg', 'Error: invalid color');
     }
   });
 });

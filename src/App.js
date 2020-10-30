@@ -53,17 +53,20 @@ function Userlist({ userList, self }) {
   return (
     <div id='userlist'>
       <div>Online ({userList.length})</div>
-      {userList.map((u, i) => (
-        <p
-          key={i}
-          style={{
-            color: u.color,
-            fontWeight: u.username === self.username ? 'bold' : '',
-          }}
-        >
-          {u.username}
-        </p>
-      ))}
+      {userList.map((u, i) => {
+        const isSelf = u.username === self.username;
+        return (
+          <p
+            key={i}
+            style={{
+              color: u.color,
+              fontWeight: isSelf ? 'bold' : '',
+            }}
+          >
+            {u.username + (isSelf ? ' (You)' : '')}
+          </p>
+        );
+      })}
     </div>
   );
 }
@@ -83,32 +86,24 @@ function App({ socket }) {
     };
   }
 
-  function getUpdatedMessages(messages, users) {
-    // make copy of messages with updated colors, usernames
-    const msgs = messages.map(m => {
-      if (m.userId in users) {
-        // if user is still active, get their latest name/color
-        m.username = users[m.userId].username;
-        m.color = users[m.userId].color;
-      }
-      //if user is not active, maintain the last name/color set on the msg
-      return m;
-    });
-    return msgs;
-  }
-
   useEffect(() => {
-    socket.on('chat-message', function (msg) {
-      setMessages(msgs => msgs.concat([msg]));
-      const elem = document.getElementById('messages');
-      elem.scrollTop = elem.scrollHeight;
+    socket.on('messages', function (msgs) {
+      setMessages(msgs);
+    });
+    socket.on('error-msg', function (errMsg) {
+      setMessages(msgs => msgs.concat[errMsg]); // TODO popup instead
     });
     socket.on('set-users', function (users) {
       setUsers(Object.values(users));
       setSelf(users[socket.id]);
-      setMessages(msgs => getUpdatedMessages(msgs, users));
     });
   }, [socket]);
+
+  useEffect(() => {
+    // when msgs change, scroll to bottom
+    const elem = document.getElementById('messages');
+    elem.scrollTop = elem.scrollHeight;
+  }, [messages]);
 
   function handleSend(e) {
     e.preventDefault(); // prevent refresh
@@ -134,15 +129,6 @@ function App({ socket }) {
         <div id='body'>
           <div id='messagesContainer'>
             <ul id='messages'>
-              <li>
-                <span>
-                  You are{' '}
-                  <span className='username' style={{ color: self?.color }}>
-                    <b>{self?.username}</b>
-                  </span>
-                  .
-                </span>
-              </li>
               {messages.map((m, i) => (
                 <Message key={i} m={m} socketId={socket.id} />
               ))}

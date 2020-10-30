@@ -32,8 +32,8 @@ io.on('connection', socket => {
   let lastColor;
 
   socket.on('init-client', username => {
-    if (usernames().indexOf(username) >= 0) {
-      // username taken
+    if (!username || usernames().indexOf(username) >= 0) {
+      // no username from cookie or username is taken
       username = rug.generate();
     } else {
       // preserve color if user in chat history
@@ -43,7 +43,7 @@ io.on('connection', socket => {
       }
     }
     users[socket.id] = { username, color: lastColor || randColor() };
-    io.emit('set-users', users); // tell everyone the user list, also gives current client its name
+    io.emit('set-users', users); // tell everyone the user list, also gives new client its name
     socket.emit('messages', messages); // give client the message history
   });
 

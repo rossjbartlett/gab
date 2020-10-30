@@ -2,7 +2,6 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import openSocket from 'socket.io-client';
 import App from './App';
-const rug = require('random-username-generator');
 const parser = require('socket.io-json-parser');
 
 const socket = openSocket('http://localhost:4000', { parser });
@@ -15,7 +14,7 @@ function initClient() {
       .find(row => row.startsWith('username'))
       .split('=')[1];
   } catch {}
-  socket.emit('init-client', cookieUsername || rug.generate());
+  socket.emit('init-client', cookieUsername);
 }
 
 socket.on('connect', initClient);

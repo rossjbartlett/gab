@@ -7,6 +7,7 @@
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.3.2",
     "@testing-library/user-event": "^7.1.2",
+    "colornames": "^1.1.1",
     "express": "^4.17.1",
     "prettier": "^2.1.2",
     "random-username-generator": "^1.0.4",

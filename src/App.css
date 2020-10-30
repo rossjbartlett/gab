@@ -65,7 +65,10 @@
   font-size: small;
   text-align: center;
   padding: 7px;
+  border-radius: 10px;
   overflow-y: scroll;
+  border: 3px solid;
+  border-bottom: 1px solid;
 }
 #userlist div {
   border-bottom: 0.1px solid black;
@@ -93,18 +96,35 @@
   padding: 5px 10px;
   word-break: break-word;
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  max-width: 60%;
 }
-#messages li:nth-child(odd) {
-  background: whitesmoke;
+
+.msgContainer {
+  display: flex;
 }
-#messages span + span {
-  margin-left: 0.3em;
+.details {
+  margin-bottom: 1px;
+}
+.details span + span {
+  margin-left: 5px;
+}
+
+.msg {
+  background: lightgrey;
+  padding: 5px 9px;
+  border-radius: 12px;
+  width: fit-content;
 }
 
 .timestamp {
-  font-size: small;
+  font-size: x-small;
   font-weight: 300;
+}
+
+.username {
+  font-size: small;
+  font-weight: 500;
 }
 
 form {
@@ -133,6 +153,7 @@ form button {
   text-align: center;
   outline: none;
   cursor: pointer;
+  border-radius: 15px;
 }
 
 form button:hover {

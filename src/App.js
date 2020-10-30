@@ -17,28 +17,6 @@ function emojify(text) {
   return text;
 }
 
-function Message({ m, socketId }) {
-  function renderTime(ts) {
-    const d = new Date(0);
-    d.setUTCSeconds(ts);
-    return d.toLocaleTimeString('en-US', TIMESTAMP_OPTIONS);
-  }
-
-  return (
-    <li
-      style={{
-        fontWeight: m.userId === socketId ? 'bold' : '',
-      }}
-    >
-      <span className='timestamp'>{renderTime(m.ts)}</span>
-      <span className='username' style={{ color: m.color }}>
-        {m.username}
-      </span>
-      <span className='msg'>{m.msg}</span>
-    </li>
-  );
-}
-
 function Userlist({ userList, self }) {
   return (
     <div id='userlist'>
@@ -57,6 +35,46 @@ function Userlist({ userList, self }) {
           </p>
         );
       })}
+    </div>
+  );
+}
+
+function Message({ m, socketId }) {
+  function renderTime(ts) {
+    const d = new Date(0);
+    d.setUTCSeconds(ts);
+    return d.toLocaleTimeString('en-US', TIMESTAMP_OPTIONS);
+  }
+
+  const isSelf = m.userId === socketId;
+  const fontWeight = isSelf ? 'bold' : '500';
+  const msgStyle = {
+    background: isSelf ? 'dodgerblue' : 'lightgrey',
+    color: isSelf ? 'white' : 'black',
+  };
+
+  return (
+    <div
+      className='msgContainer'
+      style={{
+        justifyContent: isSelf ? 'flex-end' : 'flex-start',
+      }}
+    >
+      <li
+        style={{
+          alignItems: isSelf ? 'flex-end' : 'flex-start',
+        }}
+      >
+        <div className='details'>
+          <span className='timestamp'>{renderTime(m.ts)}</span>
+          <span className='username' style={{ color: m.color, fontWeight }}>
+            {m.username}
+          </span>
+        </div>
+        <div className='msg' style={msgStyle}>
+          {m.msg}
+        </div>
+      </li>
     </div>
   );
 }

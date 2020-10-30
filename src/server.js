@@ -3,6 +3,7 @@ const http = require('http').createServer(app);
 const parser = require('socket.io-json-parser');
 const io = require('socket.io')(http, { parser });
 const rug = require('random-username-generator');
+const toHex = require('colornames');
 
 const COLORS = [
   'red',
@@ -72,13 +73,16 @@ io.on('connection', socket => {
     }
   });
 
-  socket.on('set-color', color => {
-    color = color.trim();
+  socket.on('set-color', c => {
+    let color = c.trim();
     if (color[0] !== '#') {
       color = '#' + color;
     }
-    if (/^#[0-9A-F]{6}$/i.test(color)) {
-      // is valid hex color
+    const isHex = /^#[0-9A-F]{6}$/i.test(color);
+    if (!isHex) {
+      color = toHex(c);
+    }
+    if (isHex || color) {
       users[socket.id].color = color;
       const usersMsgs = messages.filter(m => m.userId === socket.id);
       usersMsgs.forEach(m => (m.color = color));

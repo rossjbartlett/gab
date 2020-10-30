@@ -29,14 +29,13 @@ const usernames = () => Object.values(users).map(u => u.username);
 const messages = [];
 
 io.on('connection', socket => {
-  let lastColor;
-
   socket.on('init-client', username => {
+    let lastColor;
     if (!username || usernames().indexOf(username) >= 0) {
       // no username from cookie or username is taken
       username = rug.generate();
     } else {
-      // preserve color if user in chat history
+      // preserve user's color if user in chat history
       const m = messages.find(m => m.username === username);
       if (m) {
         lastColor = m.color;
@@ -78,16 +77,20 @@ io.on('connection', socket => {
     }
   });
 
-  socket.on('set-color', c => {
-    let color = c.trim();
-    if (color[0] !== '#') {
-      color = '#' + color;
+  socket.on('set-color', color => {
+    let valid = false;
+    color = color.trim();
+    const hexColor = toHex(color); // convert name to hex
+    if (hexColor) {
+      valid = true;
+    } else {
+      // check if input was already hex
+      if (color[0] !== '#') {
+        color = '#' + color;
+      }
+      valid = /^#[0-9A-F]{6}$/i.test(color);
     }
-    const isHex = /^#[0-9A-F]{6}$/i.test(color);
-    if (!isHex) {
-      color = toHex(c);
-    }
-    if (isHex || color) {
+    if (valid) {
       users[socket.id].color = color;
       const usersMsgs = messages.filter(m => m.userId === socket.id);
       usersMsgs.forEach(m => (m.color = color));

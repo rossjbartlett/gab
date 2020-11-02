@@ -5,7 +5,7 @@ const io = require('socket.io')(http, { parser });
 const rug = require('random-username-generator');
 const toHex = require('colornames');
 
-const COLORS = [
+const INITIAL_COLORS = [
   'red',
   'darkred',
   'blue',
@@ -20,8 +20,8 @@ const COLORS = [
   'goldenrod',
 ];
 
-function randColor() {
-  return COLORS[Math.floor(Math.random() * COLORS.length)];
+function randInitialColor() {
+  return INITIAL_COLORS[Math.floor(Math.random() * INITIAL_COLORS.length)];
 }
 
 const users = {};
@@ -41,7 +41,7 @@ io.on('connection', socket => {
         lastColor = m.color;
       }
     }
-    users[socket.id] = { username, color: lastColor || randColor() };
+    users[socket.id] = { username, color: lastColor || randInitialColor() };
     io.emit('set-users', users); // tell everyone the user list, also gives new client its name
     socket.emit('messages', messages); // give client the message history
   });

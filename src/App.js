@@ -110,6 +110,7 @@ function App({ socket }) {
   }, [socket]);
 
   useEffect(() => {
+    // update username cookie
     if (self.username) {
       document.cookie = `username=${self.username};max-age=${
         60 * 60 * 24 * 100

@@ -10,6 +10,7 @@ const socket = openSocket(
 );
 
 function initClient() {
+  // get username from cookie if exists
   let cookieUsername;
   try {
     cookieUsername = document.cookie

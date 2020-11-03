@@ -4,6 +4,12 @@ Chat application bootstrapped with <a href="http://example.com/" target="_blank"
 
 Click <a href="https://rossjbartlett.github.io/gab/" target="_blank">here</a> to gab!
 
+### Setup
+
+Run the server with `npm run server`. To specify the port, use `PORT=xxxx npm run server`.
+
+Run the client with `npm start`. To specify the server, use `REACT_APP_SERVER=host:port npm start`.
+
 ### Commands
 
 - Enter `/name newName` to change your username.

@@ -4,7 +4,10 @@ import openSocket from 'socket.io-client';
 import App from './App';
 const parser = require('socket.io-json-parser');
 
-const socket = openSocket('http://localhost:4000', { parser });
+const socket = openSocket(
+  process.env.REACT_APP_SERVER || 'http://localhost:4000',
+  { parser }
+);
 
 function initClient() {
   let cookieUsername;

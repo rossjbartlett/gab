@@ -1,20 +1,20 @@
-import React, { useEffect, useState } from 'react';
-import './App.css';
+import React, { useEffect, useState } from 'react'
+import './App.css'
 
-const TIMESTAMP_OPTIONS = { hour: '2-digit', minute: '2-digit', hour12: false };
+const TIMESTAMP_OPTIONS = { hour: '2-digit', minute: '2-digit', hour12: false }
 
 const EMOJIS = {
   ':)': '🙂 ',
   ';)': '😉 ',
   ':(': '🙁 ',
   ':o': '😲 ',
-};
+}
 
 function emojify(text) {
   for (const [trigger, emoji] of Object.entries(EMOJIS)) {
-    text = text.replace(trigger, emoji);
+    text = text.replace(trigger, emoji)
   }
-  return text;
+  return text
 }
 
 function Userlist({ userList, self }) {
@@ -22,7 +22,7 @@ function Userlist({ userList, self }) {
     <div id='userlist'>
       <div>Online ({userList.length})</div>
       {userList.map((u, i) => {
-        const isSelf = u.username === self.username;
+        const isSelf = u.username === self.username
         return (
           <p
             key={i}
@@ -33,25 +33,25 @@ function Userlist({ userList, self }) {
           >
             {u.username + (isSelf ? ' (You)' : '')}
           </p>
-        );
+        )
       })}
     </div>
-  );
+  )
 }
 
 function Message({ m, username }) {
   function renderTime(ts) {
-    const d = new Date(0);
-    d.setUTCSeconds(ts);
-    return d.toLocaleTimeString('en-US', TIMESTAMP_OPTIONS);
+    const d = new Date(0)
+    d.setUTCSeconds(ts)
+    return d.toLocaleTimeString('en-US', TIMESTAMP_OPTIONS)
   }
 
-  const isSelf = m.username === username;
-  const fontWeight = isSelf ? 'bold' : '500';
+  const isSelf = m.username === username
+  const fontWeight = isSelf ? 'bold' : '500'
   const msgStyle = {
     background: isSelf ? 'dodgerblue' : '#eee',
     color: isSelf ? 'white' : 'black',
-  };
+  }
 
   return (
     <div
@@ -76,15 +76,15 @@ function Message({ m, username }) {
         </div>
       </li>
     </div>
-  );
+  )
 }
 
 function App({ socket }) {
-  const [text, setText] = useState('');
-  const [messages, setMessages] = useState([]);
-  const [users, setUsers] = useState([]);
-  const [self, setSelf] = useState({});
-  const [err, setErr] = useState();
+  const [text, setText] = useState('')
+  const [messages, setMessages] = useState([])
+  const [users, setUsers] = useState([])
+  const [self, setSelf] = useState({})
+  const [err, setErr] = useState()
 
   function createMessage(msg) {
     return {
@@ -92,54 +92,54 @@ function App({ socket }) {
       username: self.username,
       color: self.color,
       msg,
-    };
+    }
   }
 
   useEffect(() => {
     socket.on('messages', function (msgs) {
-      setMessages(msgs);
-    });
+      setMessages(msgs)
+    })
     socket.on('error-msg', function (err) {
-      setErr(err);
-      setTimeout(() => setErr(null), 3000);
-    });
+      setErr(err)
+      setTimeout(() => setErr(null), 3000)
+    })
     socket.on('set-users', function (users) {
-      setUsers(Object.values(users));
-      setSelf(users[socket.id]);
-    });
-  }, [socket]);
+      setUsers(Object.values(users))
+      setSelf(users[socket.id])
+    })
+  }, [socket])
 
   useEffect(() => {
     // update username cookie
     if (self.username) {
       document.cookie = `username=${self.username};max-age=${
         60 * 60 * 24 * 100
-      }`;
+      }`
     }
-  }, [self]);
+  }, [self])
 
   useEffect(() => {
     // when msgs change, scroll to bottom
-    const elem = document.getElementById('messages');
-    elem.scrollTop = elem.scrollHeight;
-  }, [messages]);
+    const elem = document.getElementById('messages')
+    elem.scrollTop = elem.scrollHeight
+  }, [messages])
 
   function handleSend(e) {
-    e.preventDefault(); // prevent refresh
+    e.preventDefault() // prevent refresh
     if (text.trim()) {
       if (text.startsWith('/name ')) {
-        socket.emit('set-username', text.replace('/name ', ''));
+        socket.emit('set-username', text.replace('/name ', ''))
       } else if (text.startsWith('/color ')) {
-        socket.emit('set-color', text.replace('/color ', ''));
+        socket.emit('set-color', text.replace('/color ', ''))
       } else {
-        socket.emit('chat-message', createMessage(text));
+        socket.emit('chat-message', createMessage(text))
       }
     }
-    setText('');
+    setText('')
   }
 
-  const userList = users.filter(item => item !== self);
-  userList.unshift(self); // put self user at top
+  const userList = users.filter(item => item !== self)
+  userList.unshift(self) // put self user at top
 
   return (
     <div id='app'>
@@ -167,7 +167,7 @@ function App({ socket }) {
         </form>
       </div>
     </div>
-  );
+  )
 }
 
-export default App;
+export default App

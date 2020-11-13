@@ -1,9 +1,9 @@
-const app = require('express')();
-const http = require('http').createServer(app);
-const parser = require('socket.io-json-parser');
-const io = require('socket.io')(http, { parser });
-const rug = require('random-username-generator');
-const toHex = require('colornames');
+const app = require('express')()
+const http = require('http').createServer(app)
+const parser = require('socket.io-json-parser')
+const io = require('socket.io')(http, { parser })
+const rug = require('random-username-generator')
+const toHex = require('colornames')
 
 const INITIAL_COLORS = [
   'red',
@@ -18,90 +18,94 @@ const INITIAL_COLORS = [
   'chocolate',
   'darkslategrey',
   'goldenrod',
-];
+]
 
 function randInitialColor() {
-  return INITIAL_COLORS[Math.floor(Math.random() * INITIAL_COLORS.length)];
+  return INITIAL_COLORS[Math.floor(Math.random() * INITIAL_COLORS.length)]
 }
 
-const users = {};
-const usernames = () => Object.values(users).map(u => u.username);
-const messages = [];
+const users = {}
+const usernames = () => Object.values(users).map(u => u.username)
+const messages = []
 
 io.on('connection', socket => {
   socket.on('init-client', username => {
-    let lastColor;
+    let lastColor
     if (!username || usernames().indexOf(username) >= 0) {
       // no username from cookie or username is taken
-      username = rug.generate();
+      username = rug.generate()
     } else {
       // preserve user's color if user in chat history
-      const m = messages.find(m => m.username === username);
+      const m = messages.find(m => m.username === username)
       if (m) {
-        lastColor = m.color;
+        lastColor = m.color
       }
     }
-    users[socket.id] = { username, color: lastColor || randInitialColor() };
-    io.emit('set-users', users); // tell everyone the user list, also gives new client its name
-    socket.emit('messages', messages); // give client the message history
-  });
+    users[socket.id] = { username, color: lastColor || randInitialColor() }
+    io.emit('set-users', users) // tell everyone the user list, also gives new client its name
+    socket.emit('messages', messages) // give client the message history
+  })
 
   socket.on('disconnect', () => {
-    delete users[socket.id];
-    io.emit('set-users', users);
-  });
+    delete users[socket.id]
+    io.emit('set-users', users)
+  })
 
   socket.on('chat-message', msg => {
-    msg['ts'] = Date.now() / 1000; // utc seconds
-    messages.push(msg);
+    msg['ts'] = Date.now() / 1000 // utc seconds
+    messages.push(msg)
     if (messages.length > 200) {
-      messages.shift(); // pop oldest msg
+      messages.shift() // pop oldest msg
     }
-    io.emit('messages', messages);
-  });
+    io.emit('messages', messages)
+  })
 
-  socket.on('set-username', username => {
-    username = username.trim();
-    if (username.length < 1) {
-      socket.emit('error-msg', 'Error: invalid username');
-      return;
+  socket.on('set-username', newName => {
+    newName = newName.trim()
+    if (newName.length < 1) {
+      socket.emit('error-msg', 'Error: invalid username')
+      return
     }
-    if (usernames().indexOf(username) >= 0) {
-      socket.emit('error-msg', 'Error: username is taken');
+    if (usernames().indexOf(newName) >= 0) {
+      socket.emit('error-msg', 'Error: username is taken')
     } else {
-      users[socket.id].username = username;
-      const usersMsgs = messages.filter(m => m.userId === socket.id);
-      usersMsgs.forEach(m => (m.username = username));
-      io.emit('set-users', users); //notify all
-      io.emit('messages', messages);
+      const oldName = users[socket.id].username
+      // update name in users list and for all past messages
+      users[socket.id].username = newName
+      const usersMsgs = messages.filter(m => m.username === oldName)
+      usersMsgs.forEach(m => (m.username = newName))
+      io.emit('set-users', users) //notify all
+      io.emit('messages', messages)
     }
-  });
+  })
 
   socket.on('set-color', color => {
-    let valid = false;
-    color = color.trim();
-    const hexColor = toHex(color); // convert name to hex
+    let valid = false
+    color = color.trim()
+    const hexColor = toHex(color) // convert name to hex
     if (hexColor) {
-      valid = true;
+      valid = true
     } else {
       // check if input was already hex
       if (color[0] !== '#') {
-        color = '#' + color;
+        color = '#' + color
       }
-      valid = /^#[0-9A-F]{6}$/i.test(color);
+      valid = /^#[0-9A-F]{6}$/i.test(color)
     }
     if (valid) {
-      users[socket.id].color = color;
-      const usersMsgs = messages.filter(m => m.userId === socket.id);
-      usersMsgs.forEach(m => (m.color = color));
-      io.emit('set-users', users); //notify all
-      io.emit('messages', messages);
+      users[socket.id].color = color
+      const usersMsgs = messages.filter(
+        m => m.username === users[socket.id].username
+      )
+      usersMsgs.forEach(m => (m.color = color))
+      io.emit('set-users', users) //notify all
+      io.emit('messages', messages)
     } else {
-      socket.emit('error-msg', 'Error: invalid color');
+      socket.emit('error-msg', 'Error: invalid color')
     }
-  });
-});
+  })
+})
 
 http.listen(process.env.PORT || 4000, () => {
-  console.log('listening on:', http.address());
-});
+  console.log('listening on:', http.address())
+})
